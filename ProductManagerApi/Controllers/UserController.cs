@@ -20,15 +20,15 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
-    public IActionResult Register([FromBody] RegisterDto dto)
+    public IActionResult Register([FromBody] RegisterUserDto userDto)
     {
         var user = new UserModel()
         {
-            Name = dto.Name,
-            Email = dto.Email,
-            Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = dto.Role,
-            IsActive = dto.IsActive,
+            Name = userDto.Name,
+            Email = userDto.Email,
+            Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
+            Role = userDto.Role,
+            IsActive = userDto.IsActive,
             CreatedAt = DateTime.UtcNow,
         };
 
@@ -36,13 +36,13 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginDto dto)
+    public IActionResult Login([FromBody] LoginUserDto userDto)
     {
-        var user = _userRepository.GetByEmail(dto.Email);
+        var user = _userRepository.GetByEmail(userDto.Email);
 
         if (user == null) return BadRequest(new { message = "Invalid Credentials" });
 
-        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+        if (!BCrypt.Net.BCrypt.Verify(userDto.Password, user.Password))
         {
             return BadRequest(new { message = "Invalid Credentials" });
         }
@@ -103,13 +103,13 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("updateuser")]
-    public IActionResult UpdateUser(int id, [FromBody] UpdateDto dto)
+    public IActionResult UpdateUser(int id, [FromBody] UpdateUserDto userDto)
     {
-        var user = _userRepository.GetById(dto.Id);
+        var user = _userRepository.GetById(userDto.Id);
         if (user == null) return NotFound(new { message = "No user found" });
 
-        user.Name = dto.Name;
-        user.Email = dto.Email;
+        user.Name = userDto.Name;
+        user.Email = userDto.Email;
 
         var updatedUser = _userRepository.Update(user);
         return Ok(updatedUser);
